@@ -1,4 +1,4 @@
-
-
-
-PRINT 'hola mundo sss""'
+PROGRAM prueba;
+BEGIN
+WRITELN ('linea nueva');
+END.

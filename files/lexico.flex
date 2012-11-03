@@ -3,6 +3,7 @@ import java_cup.runtime.SymbolFactory;
 %%
 %cup
 %class Scanner
+%ignorecase
 
 %{
 	private SymbolFactory sf;
@@ -29,12 +30,51 @@ espacio			= [ \t]+
 cadena			= "'"[^']*"'"
 
 %%
-
-"PRINT" {
+"PROGRAM" {
 	if(debug)
-		System.out.println("token PRINT");
-	return sf.newSymbol("WRITE",Symbols.PRINT);
-}				
+		System.out.println("token PROGRAM");
+	return sf.newSymbol("PROGRAM",Symbols.PROGRAM);
+}
+"BEGIN" {
+	if(debug)
+		System.out.println("token BEGIN");
+	return sf.newSymbol("BEGIN",Symbols.BEGIN);
+}
+"END." {
+	if(debug)
+		System.out.println("token FINPROGRAM");
+	return sf.newSymbol("FINPROGRAM",Symbols.FINPROGRAM);
+}
+"WRITE" {
+	if(debug)
+		System.out.println("token WRITE");
+	return sf.newSymbol("WRITE",Symbols.WRITE);
+}
+"WRITE" {
+	if(debug)
+		System.out.println("token WRITE");
+	return sf.newSymbol("WRITE",Symbols.WRITE);
+}
+"WRITE" {
+	if(debug)
+		System.out.println("token WRITE");
+	return sf.newSymbol("WRITE",Symbols.WRITE);
+}
+"WRITELN" {
+	if(debug)
+		System.out.println("token WRITELN");
+	return sf.newSymbol("WRITELN",Symbols.WRITELN);
+}	
+"(" {
+	if(debug)
+		System.out.println("token LPARENT");
+	return sf.newSymbol("LPARENT",Symbols.LPARENT);
+}
+")" {
+	if(debug)
+		System.out.println("token RPARENT");
+	return sf.newSymbol("RPARENT",Symbols.RPARENT);
+}			
 ";" {
 	if(debug)
 		System.out.println("token PTCO");
@@ -45,15 +85,15 @@ cadena			= "'"[^']*"'"
 		System.out.println("token IDENTIFICADOR");
 	return sf.newSymbol("IDENTIFICADOR",Symbols.IDENTIFICADOR,new String(yytext()));
 }
-{numero} {
-	if(debug)
-		System.out.println("token NUMERO");
-	return sf.newSymbol("NUMERO",Symbols.NUMERO,new String(yytext()));
-}
 {cadena} {
 	if(debug)
         System.out.println("token CADENA");
 	return sf.newSymbol("CADENA",Symbols.CADENA,new String(yytext()));
+}
+{numero} {
+	if(debug)
+		System.out.println("token NUMERO");
+	return sf.newSymbol("NUMERO",Symbols.NUMERO,new String(yytext()));
 }					
 {nuevalinea} {
 	lineaNum++;
@@ -64,15 +104,10 @@ cadena			= "'"[^']*"'"
 {espacio} {
 	/*Salta espacios en blanco*/
 }
-"'"[^\n]* {
-	/*Salto comentarios*/
-	if(debug)
-		System.out.println("token COMENTARIO");
-}
 "REM"{espacio}[^\n]* {
 	/* salto comentarios */
 	if(debug)
-		System.out.println("token COMENTARIO");
+		System.out.println("token COMENTARIO2");
 }
 . {
 	System.err.println("Caracter Ilegal encontrado en analisis lexico: " + yytext() + "\n");

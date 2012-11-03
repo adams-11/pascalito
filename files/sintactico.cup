@@ -18,7 +18,13 @@ action code {:
 
 /* Simbolos Terminales */
 
-terminal PRINT;
+terminal PROGRAM;
+terminal BEGIN;
+terminal FINPROGRAM;
+terminal WRITE;
+terminal WRITELN;
+terminal LPARENT;
+terminal RPARENT;
 terminal String CADENA;
 terminal PTCO;
 terminal END;
@@ -31,22 +37,17 @@ non terminal NodoBase programaTotal;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase expresion;
-non terminal NodoBase print;
-non terminal NodoBase printValor;
+non terminal NodoBase write;
+non terminal NodoBase writeValor;
 non terminal NodoBase separar;
 non terminal NodoBase lineas;
 
 
 /* REGLAS GRAMATICALES */
 programaTotal ::=
-	separar seq_sent:prog separar {:
+	separar PROGRAM separar IDENTIFICADOR PTCO separar BEGIN separar seq_sent:prog separar FINPROGRAM separar {:
 		if(debug)
 			System.out.println("\t Regla: programaTotal ::= seq_sent");
-		root=prog;
-	:}
-	| separar seq_sent:prog separar END separar {:
-		if(debug)
-			System.out.println("\t Regla: programaTotal ::= seq_sent END ");
 		root=prog;
 	:}
 	| separar {:
@@ -83,31 +84,31 @@ seq_sent ::=
 ;
 
 sent ::=
-	print:sentencia {:
+	write:sentencia {:
 		if(debug)
-			System.out.println("\t Regla: sent ::= print");
+			System.out.println("\t Regla: sent ::= write");
 		RESULT = sentencia;
 	:}
 ;
 
-print ::=
-	PRINT printValor:sentencia {:
+write ::=
+	WRITE LPARENT writeValor:sentencia RPARENT PTCO {:
 		if(debug)
-			System.out.println("\t Regla: print ::= PRINT printAnidado");
-		RESULT = new NodoEscribir(sentencia);
+			System.out.println("\t Regla: print ::= WRITE writeAnidado");
+		RESULT = new NodoEscribir(sentencia,false);
 	:}
-	| PRINT	printValor:sentencia PTCO {: 
+	| WRITELN LPARENT writeValor:sentencia RPARENT PTCO {: 
 		if(debug)
-			System.out.println("\t Regla: printAnidado ::= printAnidado PTCO");
-		NodoEscribir nodoEscribir= new NodoEscribir(sentencia,false);
+			System.out.println("\t Regla: writeAnidado ::= writeAnidado PTCO");
+		NodoEscribir nodoEscribir= new NodoEscribir(sentencia,true);
 		RESULT = nodoEscribir;
 	:}	
 ;
 
-printValor ::=
+writeValor ::=
 	CADENA:cadena {:
 		if(debug)
-			System.out.println("\t Regla: printValor ::= CADENA");
+			System.out.println("\t Regla: writeValor ::= CADENA");
 		RESULT = new NodoCadena(cadena.toString());				
 	:}
 ;
