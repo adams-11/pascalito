@@ -26,11 +26,7 @@ public class Compilador {
 
         System.out.println("");
         System.out.println("-----------------------------------");
-        System.out.println("");
-        
         interpretarNodo(root);
-
-        System.out.println("");
         System.out.println("-----------------------------------");
     }
     

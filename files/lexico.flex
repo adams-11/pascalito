@@ -81,6 +81,11 @@ comentario		= "{"[^}]*"}"
 		System.out.println("token PTCO");
 	return sf.newSymbol("PTCO",Symbols.PTCO);
 }
+"," {
+	if(debug)
+		System.out.println("token COMA");
+	return sf.newSymbol("COMA",Symbols.COMA);
+}
 {identificador} {
 	if(debug)
 		System.out.println("token IDENTIFICADOR");

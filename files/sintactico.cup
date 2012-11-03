@@ -26,6 +26,7 @@ terminal WRITELN;
 terminal LPARENT;
 terminal RPARENT;
 terminal String CADENA;
+terminal COMA;
 terminal PTCO;
 terminal END;
 terminal LINEANUEVA;
@@ -38,6 +39,7 @@ non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase expresion;
 non terminal NodoBase write;
+non terminal NodoBase writeAnidado;
 non terminal NodoBase writeValor;
 non terminal NodoBase separar;
 non terminal NodoBase lineas;
@@ -92,17 +94,39 @@ sent ::=
 ;
 
 write ::=
-	WRITE LPARENT writeValor:sentencia RPARENT PTCO {:
+	WRITE LPARENT writeAnidado:sentencia RPARENT PTCO {:
 		if(debug)
 			System.out.println("\t Regla: print ::= WRITE writeAnidado");
 		RESULT = new NodoEscribir(sentencia,false);
 	:}
-	| WRITELN LPARENT writeValor:sentencia RPARENT PTCO {: 
+	| WRITELN LPARENT writeAnidado:sentencia RPARENT PTCO {: 
 		if(debug)
 			System.out.println("\t Regla: writeAnidado ::= writeAnidado PTCO");
 		NodoEscribir nodoEscribir= new NodoEscribir(sentencia,true);
 		RESULT = nodoEscribir;
 	:}	
+;
+
+writeAnidado ::=
+	writeAnidado:valores COMA writeValor:valor {:
+		if(debug)
+			System.out.println("\t Regla: writeAnidado ::= writeAnidado COMA writeValor");
+		NodoBase hijoActual = valores;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(valor);
+			RESULT = valores;
+		}else{
+			RESULT = valor;
+		}
+	:}			
+	| writeValor:valor {: 
+		if(debug)
+			System.out.println("\t Regla: writeAnidado ::= writeValor");
+		RESULT = valor;
+	:}		
 ;
 
 writeValor ::=
