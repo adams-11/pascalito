@@ -28,6 +28,7 @@ identificador	= {letra}([a-zA-Z0-9.%$_])*
 nuevalinea		= \n | \n\r | \r\n
 espacio			= [ \t]+
 cadena			= "'"[^']*"'"
+comentario		= "{"[^}]*"}"
 
 %%
 "PROGRAM" {
@@ -104,10 +105,9 @@ cadena			= "'"[^']*"'"
 {espacio} {
 	/*Salta espacios en blanco*/
 }
-"REM"{espacio}[^\n]* {
-	/* salto comentarios */
+{comentario} {
 	if(debug)
-		System.out.println("token COMENTARIO2");
+        System.out.println("token COMENTARIO");
 }
 . {
 	System.err.println("Caracter Ilegal encontrado en analisis lexico: " + yytext() + "\n");
