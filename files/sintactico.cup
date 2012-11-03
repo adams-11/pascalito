@@ -1,0 +1,123 @@
+import java_cup.runtime.*;
+import ast.*;
+
+action code {:
+	private NodoBase root=null;
+	private NodoBase funciones=null;
+	private boolean debug=true;	
+	private int lineaNum=0;
+
+	public NodoBase getRoot(){
+		return root;
+	}
+	
+	public NodoBase getFunciones(){
+		return funciones;
+	}
+:}
+
+/* Simbolos Terminales */
+
+terminal PRINT;
+terminal String CADENA;
+terminal PTCO;
+terminal END;
+terminal LINEANUEVA;
+terminal IDENTIFICADOR;
+terminal NUMERO;
+
+/* Simbolos No Terminales */
+non terminal NodoBase programaTotal;
+non terminal NodoBase seq_sent;
+non terminal NodoBase sent;
+non terminal NodoBase expresion;
+non terminal NodoBase print;
+non terminal NodoBase printValor;
+non terminal NodoBase separar;
+non terminal NodoBase lineas;
+
+
+/* REGLAS GRAMATICALES */
+programaTotal ::=
+	separar seq_sent:prog separar {:
+		if(debug)
+			System.out.println("\t Regla: programaTotal ::= seq_sent");
+		root=prog;
+	:}
+	| separar seq_sent:prog separar END separar {:
+		if(debug)
+			System.out.println("\t Regla: programaTotal ::= seq_sent END ");
+		root=prog;
+	:}
+	| separar {:
+		if(debug)
+			System.out.println("\t Regla: programaTotal ::= nada ");
+	:}
+	| error {:
+		if(debug)
+			System.out.println("\t Regla programaTotal ::= error"); 
+		System.out.println("Error: programaTotal ::= NO ENCONTRADA");
+	:}
+;
+
+seq_sent ::=
+	seq_sent:sentencias separar sent:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: seq_sent ::= Varias Sentencias");
+		NodoBase hijoActual = sentencias;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(sentencia);
+			RESULT = sentencias;
+		}else{
+			RESULT = sentencia;
+		}
+	:}
+	| sent:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: seq_sent ::= Una Sentencia");
+		RESULT = sentencia;
+	:}
+;
+
+sent ::=
+	print:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= print");
+		RESULT = sentencia;
+	:}
+;
+
+print ::=
+	PRINT printValor:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: print ::= PRINT printAnidado");
+		RESULT = new NodoEscribir(sentencia);
+	:}
+	| PRINT	printValor:sentencia PTCO {: 
+		if(debug)
+			System.out.println("\t Regla: printAnidado ::= printAnidado PTCO");
+		NodoEscribir nodoEscribir= new NodoEscribir(sentencia,false);
+		RESULT = nodoEscribir;
+	:}	
+;
+
+printValor ::=
+	CADENA:cadena {:
+		if(debug)
+			System.out.println("\t Regla: printValor ::= CADENA");
+		RESULT = new NodoCadena(cadena.toString());				
+	:}
+;
+
+separar ::=
+	lineas {: :}
+	| {: :}
+;
+
+lineas ::=
+	lineas LINEANUEVA {: :}
+	| LINEANUEVA {: :}
+;
