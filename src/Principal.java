@@ -24,20 +24,24 @@ public class Principal {
         parser.parse();
         NodoBase root = parser.action_obj.getRoot();
         NodoBase funciones = parser.action_obj.getFunciones();
-        
-        
+
+
         NodoBase variables = parser.action_obj.getVars();
+
         if (variables instanceof NodoDeclaracion) {
             NodoDeclaracion dec = (NodoDeclaracion) variables;
-            System.out.println(dec.getTipo());
-            NodoIdentificador ide = dec.getVariable();
-            while (ide != null) {
-                System.out.println(ide.getNombre());
-                ide=(NodoIdentificador)ide.getHermanoDerecha();
+            while (dec != null) {
+                System.out.println(dec.getTipo());
+                NodoIdentificador ide = dec.getVariable();
+                while (ide != null) {
+                    System.out.println(ide.getNombre());
+                    ide = (NodoIdentificador) ide.getHermanoDerecha();
+                }
+                dec = (NodoDeclaracion) dec.getHermanoDerecha();
             }
         }
-        
-        
+
+
         new Compilador(root, funciones).start();
     }
 }

@@ -57,10 +57,12 @@ terminal LINEANUEVA;
 /* Simbolos No Terminales */
 non terminal NodoBase programaTotal;
 non terminal NodoBase declararVariables;
+non terminal NodoBase seq_declararVariables;
 non terminal NodoBase ident;
 non terminal NodoBase identAnidado;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
+non terminal NodoBase asignacion;
 non terminal NodoBase expresion;
 non terminal NodoBase write;
 non terminal NodoBase writeAnidado;
@@ -82,7 +84,7 @@ programaTotal ::=
 			System.out.println("\t Regla: programaTotal ::= seq_sent");
 		root=prog;
 	:}
-	| separar PROGRAM separar IDENTIFICADOR PTCO separar declararVariables:var separar BEGIN separar seq_sent:prog separar FINPROGRAM separar {:
+	| separar PROGRAM separar IDENTIFICADOR PTCO separar VAR separar seq_declararVariables:var separar BEGIN separar seq_sent:prog separar FINPROGRAM separar {:
 		if(debug)
 			System.out.println("\t Regla: programaTotal ::= seq_sent");
 		root=prog;
@@ -99,21 +101,45 @@ programaTotal ::=
 	:}
 ;
 
-declararVariables ::=
-	VAR separar identAnidado:identificadores DOSP INTEGER PTCO {:
+
+seq_declararVariables ::=
+	seq_declararVariables:declaraciones separar declararVariables:declaracion {:
 		if(debug)
-			System.out.println("\t Regla: variables ::= VAR separar identAnidado DOSP INTEGER");
+			System.out.println("\t Regla: seq_declararVariables ::= Varias Declaraciones");
+		NodoBase hijoActual = declaraciones;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(declaracion);
+			RESULT = declaraciones;
+		}else{
+			RESULT = declaracion;
+		}
+	:}
+	| declararVariables:declaracion {:
+		if(debug)
+			System.out.println("\t Regla: seq_declararVariables ::= Una Declaracion");
+		RESULT = declaracion;
+	:}
+;
+
+/* agregar el token separar para crear una sintaxis libre de contexto*/
+declararVariables ::=
+	identAnidado:identificadores separar DOSP separar INTEGER separar PTCO {:
+		if(debug)
+			System.out.println("\t Regla: declararVariables ::= identAnidado separar DOSP separar INTEGER PTCO");
 		RESULT = new NodoDeclaracion(identificadores,Tipo.Variable.INTEGER);	
 	:}
-	| VAR separar identAnidado:identificadores DOSP BOOLEAN PTCO {:
+	| identAnidado:identificadores separar DOSP separar BOOLEAN separar PTCO {:
 		if(debug)
-			System.out.println("\t Regla: variables ::= VAR separar identAnidado DOSP BOOLEAN");
-		new NodoDeclaracion(identificadores,Tipo.Variable.BOOLEAN);	
+			System.out.println("\t Regla: declararVariables ::= identAnidado separar DOSP separar BOOLEAN PTCO");
+		RESULT = new NodoDeclaracion(identificadores,Tipo.Variable.BOOLEAN);	
 	:}
 ;
 
 identAnidado ::=
-	identAnidado:identificadores COMA IDENTIFICADOR:ident {:
+	identAnidado:identificadores separar COMA separar IDENTIFICADOR:ident {:
 		if(debug)
 			System.out.println("\t Regla: identAnidado ::= identAnidado COMA IDENTIFICADOR");
 		NodoBase hijoActual = identificadores;
@@ -162,15 +188,28 @@ sent ::=
 			System.out.println("\t Regla: sent ::= write");
 		RESULT = sentencia;
 	:}
+	| asignacion:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= asignacion");
+		RESULT=sentencia;                              
+	:}
+;
+
+asignacion ::=
+	IDENTIFICADOR:variable separar DOSP IGUAL separar expresion:valor separar PTCO {:
+		if(debug)
+			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
+		RESULT = new NodoAsignacion(variable, valor);
+	:}
 ;
 
 write ::=
-	WRITE LPARENT writeAnidado:sentencia RPARENT PTCO {:
+	WRITE LPARENT writeAnidado:sentencia RPARENT separar PTCO {:
 		if(debug)
 			System.out.println("\t Regla: print ::= WRITE writeAnidado");
 		RESULT = new NodoEscribir(sentencia,false);
 	:}
-	| WRITELN LPARENT writeAnidado:sentencia RPARENT PTCO {: 
+	| WRITELN LPARENT writeAnidado:sentencia RPARENT separar PTCO {: 
 		if(debug)
 			System.out.println("\t Regla: writeAnidado ::= writeAnidado PTCO");
 		NodoEscribir nodoEscribir= new NodoEscribir(sentencia,true);
@@ -218,6 +257,11 @@ expresion ::=
 		if(debug)
 			System.out.println("\t Regla: expresion ::= NUMERO ");
 		RESULT = new NodoNumero(num);
+	:}
+	| IDENTIFICADOR:variable {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= IDENTIFICADOR ");
+		RESULT = new NodoIdentificador(variable);
 	:}
 	| expresion:e1 SUMA expresion:e2 {:
 		if(debug)

@@ -51,11 +51,6 @@ comentario		= "{"[^}]*"}"
 		System.out.println("token VAR");
 	return sf.newSymbol("VAR",Symbols.VAR);
 }
-":=" {
-	if(debug)
-		System.out.println("token IGUAL");
-	return sf.newSymbol("IGUAL",Symbols.IGUAL);
-}
 "INTEGER" {
 	if(debug)
 		System.out.println("token INTEGER");
