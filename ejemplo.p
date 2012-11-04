@@ -1,5 +1,4 @@
 PROGRAM prueba;
-{{BEGIN ES UN CUERPO}}}}}
 BEGIN
-WRITELN ('linea nueva','CONTINUA');
+WRITE ('hola:',1);
 END.

@@ -23,15 +23,27 @@ terminal BEGIN;
 terminal FINPROGRAM;
 terminal WRITE;
 terminal WRITELN;
+terminal String CADENA;
+terminal String NUMERO;
+terminal IGUAL;
+terminal SUMA;
+terminal REST;
+terminal MULT;
+terminal DIVI;
+terminal MOD;
+terminal SIGNO;
 terminal LPARENT;
 terminal RPARENT;
-terminal String CADENA;
+terminal LCORCHE;
+terminal RCORCHE;
+terminal AND;
+terminal OR;
+terminal NOT;
 terminal COMA;
 terminal PTCO;
 terminal END;
 terminal LINEANUEVA;
-terminal IDENTIFICADOR;
-terminal NUMERO;
+terminal String IDENTIFICADOR;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programaTotal;
@@ -43,6 +55,12 @@ non terminal NodoBase writeAnidado;
 non terminal NodoBase writeValor;
 non terminal NodoBase separar;
 non terminal NodoBase lineas;
+
+precedence left REST, SUMA;
+precedence left MULT, DIVI, MOD;
+precedence left SIGNO;
+precedence left AND, OR;
+precedence right NOT;
 
 
 /* REGLAS GRAMATICALES */
@@ -134,6 +152,24 @@ writeValor ::=
 		if(debug)
 			System.out.println("\t Regla: writeValor ::= CADENA");
 		RESULT = new NodoCadena(cadena.toString());				
+	:}
+	| expresion:ex {:
+		if(debug)
+			System.out.println("\t Regla: writeValor ::= expresion");
+		RESULT = ex;
+	:}
+;
+
+expresion ::= 
+	NUMERO:num {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= NUMERO ");
+		RESULT = new NodoNumero(num);
+	:}
+	| expresion:e1 SUMA expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= SUMA ");
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.SUMA);
 	:}
 ;
 

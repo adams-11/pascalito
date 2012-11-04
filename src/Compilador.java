@@ -52,6 +52,11 @@ public class Compilador {
                 cadena = cadena.substring(1, cadena.length() - 1);
                 System.out.print(cadena);
             }
+             if(valor instanceof NodoNumero){
+                 NodoNumero nodoNumero = (NodoNumero) valor;
+                Integer numero = nodoNumero.getValor();
+                System.out.print(numero);
+             }
             //si es una sentencia print con varios valores separados por ","
             valor = valor.getHermanoDerecha();
             if (valor != null) {

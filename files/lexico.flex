@@ -65,7 +65,37 @@ comentario		= "{"[^}]*"}"
 	if(debug)
 		System.out.println("token WRITELN");
 	return sf.newSymbol("WRITELN",Symbols.WRITELN);
-}	
+}
+"=" {
+	if(debug)
+		System.out.println("token IGUAL");
+	return sf.newSymbol("IGUAL",Symbols.IGUAL);
+}
+"+" {
+	if(debug)
+		System.out.println("token SUMA");
+	return sf.newSymbol("SUMA",Symbols.SUMA);
+}
+"-" {
+    if(debug)
+		System.out.println("token REST");
+	return sf.newSymbol("REST",Symbols.REST);
+}
+"*" {
+	if(debug)
+		System.out.println("token MULT");
+	return sf.newSymbol("MULT",Symbols.MULT);
+}
+"/" {
+	if(debug)
+		System.out.println("token DIVI");
+	return sf.newSymbol("DIVI",Symbols.DIVI);
+}
+"MOD" {
+	if(debug)
+		System.out.println("token MOD");
+	return sf.newSymbol("MOD",Symbols.MOD);
+}
 "(" {
 	if(debug)
 		System.out.println("token LPARENT");
@@ -75,11 +105,36 @@ comentario		= "{"[^}]*"}"
 	if(debug)
 		System.out.println("token RPARENT");
 	return sf.newSymbol("RPARENT",Symbols.RPARENT);
+}
+"[" {
+	if(debug)
+		System.out.println("token LCORCHE");
+	return sf.newSymbol("LCORCHE",Symbols.LCORCHE);
+}
+"]" {
+	if(debug)
+		System.out.println("token RCORCHE");
+	return sf.newSymbol("RCORCHE",Symbols.RCORCHE);
 }			
 ";" {
 	if(debug)
 		System.out.println("token PTCO");
 	return sf.newSymbol("PTCO",Symbols.PTCO);
+}
+"AND" {
+	if(debug)
+		System.out.println("token AND");
+	return sf.newSymbol("AND",Symbols.AND);
+}
+"OR" {
+	if(debug)
+		System.out.println("token OR");
+	return sf.newSymbol("OR",Symbols.OR);
+}
+"NOT" {
+	if(debug)
+		System.out.println("token NOT");
+	return sf.newSymbol("NOT",Symbols.NOT);
 }
 "," {
 	if(debug)
