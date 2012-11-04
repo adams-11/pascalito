@@ -1,4 +1,7 @@
 PROGRAM prueba;
-BEGIN
-WRITE ('hola:',1);
+	VAR
+		X,Y:INTEGER;
+	BEGIN
+		WRITE (1);
+		WRITE (123);
 END.

@@ -4,11 +4,16 @@ import ast.*;
 action code {:
 	private NodoBase root=null;
 	private NodoBase funciones=null;
+	private NodoBase vars=null;
 	private boolean debug=true;	
 	private int lineaNum=0;
 
 	public NodoBase getRoot(){
 		return root;
+	}
+
+	public NodoBase getVars(){
+		return vars;
 	}
 	
 	public NodoBase getFunciones(){
@@ -21,11 +26,15 @@ action code {:
 terminal PROGRAM;
 terminal BEGIN;
 terminal FINPROGRAM;
-terminal WRITE;
-terminal WRITELN;
+terminal VAR;
+terminal INTEGER;
+terminal BOOLEAN;
+terminal String IDENTIFICADOR;
 terminal String CADENA;
 terminal String NUMERO;
 terminal IGUAL;
+terminal WRITE;
+terminal WRITELN;
 terminal SUMA;
 terminal REST;
 terminal MULT;
@@ -41,12 +50,15 @@ terminal OR;
 terminal NOT;
 terminal COMA;
 terminal PTCO;
+terminal DOSP;
 terminal END;
 terminal LINEANUEVA;
-terminal String IDENTIFICADOR;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programaTotal;
+non terminal NodoBase declararVariables;
+non terminal NodoBase ident;
+non terminal NodoBase identAnidado;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase expresion;
@@ -70,6 +82,12 @@ programaTotal ::=
 			System.out.println("\t Regla: programaTotal ::= seq_sent");
 		root=prog;
 	:}
+	| separar PROGRAM separar IDENTIFICADOR PTCO separar declararVariables:var separar BEGIN separar seq_sent:prog separar FINPROGRAM separar {:
+		if(debug)
+			System.out.println("\t Regla: programaTotal ::= seq_sent");
+		root=prog;
+		vars=var;
+	:}
 	| separar {:
 		if(debug)
 			System.out.println("\t Regla: programaTotal ::= nada ");
@@ -78,6 +96,41 @@ programaTotal ::=
 		if(debug)
 			System.out.println("\t Regla programaTotal ::= error"); 
 		System.out.println("Error: programaTotal ::= NO ENCONTRADA");
+	:}
+;
+
+declararVariables ::=
+	VAR separar identAnidado:identificadores DOSP INTEGER PTCO {:
+		if(debug)
+			System.out.println("\t Regla: variables ::= VAR separar identAnidado DOSP INTEGER");
+		RESULT = new NodoDeclaracion(identificadores,Tipo.Variable.INTEGER);	
+	:}
+	| VAR separar identAnidado:identificadores DOSP BOOLEAN PTCO {:
+		if(debug)
+			System.out.println("\t Regla: variables ::= VAR separar identAnidado DOSP BOOLEAN");
+		new NodoDeclaracion(identificadores,Tipo.Variable.BOOLEAN);	
+	:}
+;
+
+identAnidado ::=
+	identAnidado:identificadores COMA IDENTIFICADOR:ident {:
+		if(debug)
+			System.out.println("\t Regla: identAnidado ::= identAnidado COMA IDENTIFICADOR");
+		NodoBase hijoActual = identificadores;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(new NodoIdentificador(ident));
+			RESULT = identificadores;
+		}else{
+			RESULT = new NodoIdentificador(ident);
+		}
+	:}
+	| IDENTIFICADOR:ident {: 
+		if(debug)
+			System.out.println("\t Regla: identAnidado ::= IDENTIFICADOR");
+		RESULT = new NodoIdentificador(ident);
 	:}
 ;
 

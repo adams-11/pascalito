@@ -46,15 +46,25 @@ comentario		= "{"[^}]*"}"
 		System.out.println("token FINPROGRAM");
 	return sf.newSymbol("FINPROGRAM",Symbols.FINPROGRAM);
 }
-"WRITE" {
+"VAR" {
 	if(debug)
-		System.out.println("token WRITE");
-	return sf.newSymbol("WRITE",Symbols.WRITE);
+		System.out.println("token VAR");
+	return sf.newSymbol("VAR",Symbols.VAR);
 }
-"WRITE" {
+":=" {
 	if(debug)
-		System.out.println("token WRITE");
-	return sf.newSymbol("WRITE",Symbols.WRITE);
+		System.out.println("token IGUAL");
+	return sf.newSymbol("IGUAL",Symbols.IGUAL);
+}
+"INTEGER" {
+	if(debug)
+		System.out.println("token INTEGER");
+	return sf.newSymbol("INTEGER",Symbols.INTEGER);
+}
+"BOOLEAN" {
+	if(debug)
+		System.out.println("token BOOLEAN");
+	return sf.newSymbol("BOOLEAN",Symbols.BOOLEAN);
 }
 "WRITE" {
 	if(debug)
@@ -120,6 +130,11 @@ comentario		= "{"[^}]*"}"
 	if(debug)
 		System.out.println("token PTCO");
 	return sf.newSymbol("PTCO",Symbols.PTCO);
+}
+":" {
+	if(debug)
+		System.out.println("token DOSP");
+	return sf.newSymbol("DOSP",Symbols.DOSP);
 }
 "AND" {
 	if(debug)

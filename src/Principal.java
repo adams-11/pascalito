@@ -1,4 +1,7 @@
+
 import ast.NodoBase;
+import ast.NodoDeclaracion;
+import ast.NodoIdentificador;
 import java.io.FileInputStream;
 import java_cup.runtime.DefaultSymbolFactory;
 import java_cup.runtime.SymbolFactory;
@@ -21,6 +24,20 @@ public class Principal {
         parser.parse();
         NodoBase root = parser.action_obj.getRoot();
         NodoBase funciones = parser.action_obj.getFunciones();
-        new Compilador(root,funciones).start();
+        
+        
+        NodoBase variables = parser.action_obj.getVars();
+        if (variables instanceof NodoDeclaracion) {
+            NodoDeclaracion dec = (NodoDeclaracion) variables;
+            System.out.println(dec.getTipo());
+            NodoIdentificador ide = dec.getVariable();
+            while (ide != null) {
+                System.out.println(ide.getNombre());
+                ide=(NodoIdentificador)ide.getHermanoDerecha();
+            }
+        }
+        
+        
+        new Compilador(root, funciones).start();
     }
 }
