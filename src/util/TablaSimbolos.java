@@ -16,15 +16,20 @@ public class TablaSimbolos {
         direccion = 0;
     }
 
-    public void cargarTabla(NodoDeclaracion dec) {
+    public boolean cargarTabla(NodoDeclaracion dec) {
         while (dec != null) {
             NodoIdentificador ide = dec.getVariable();
             while (ide != null) {
-                insertarSimbolo(ide.getNombre(), dec.getTipo(), -1);
+                //inserta la variable, pero si ya estaba no continua
+                if(!insertarSimbolo(ide.getNombre(), dec.getTipo(), -1)){
+                    System.err.println("No puede declarar 2 veces la misma variable: "+ide.getNombre());
+                    return false;
+                }
                 ide = (NodoIdentificador) ide.getHermanoDerecha();
             }
             dec = (NodoDeclaracion) dec.getHermanoDerecha();
         }
+        return true;
     }
 
     //true es nuevo no existe se insertara, false ya existe NO se vuelve a insertar 
@@ -55,5 +60,9 @@ public class TablaSimbolos {
 
     public int getDireccion(String clave) {
         return buscarSimbolo(clave).getDireccionMemoria();
+    }
+    
+    public Tipo.Variable getTipo(String clave) {
+        return buscarSimbolo(clave).getTipo();
     }
 }

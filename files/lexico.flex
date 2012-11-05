@@ -71,6 +71,16 @@ comentario		= "{"[^}]*"}"
 		System.out.println("token WRITELN");
 	return sf.newSymbol("WRITELN",Symbols.WRITELN);
 }
+"TRUE" {
+	if(debug)
+		System.out.println("token TRUE");
+	return sf.newSymbol("TRUE",Symbols.TRUE);
+}
+"FALSE" {
+	if(debug)
+		System.out.println("token FALSE");
+	return sf.newSymbol("FALSE",Symbols.FALSE);
+}
 "=" {
 	if(debug)
 		System.out.println("token IGUAL");

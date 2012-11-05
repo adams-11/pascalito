@@ -72,6 +72,8 @@ public class Compilador {
                 nodoNumero((NodoNumero) nodoActual);
             } else if (nodoActual instanceof NodoAsignacion) {
                 nodoAsignacion((NodoAsignacion) nodoActual);
+            } else if (nodoActual instanceof NodoAsignacionBool) {
+                nodoAsignacionBool((NodoAsignacionBool) nodoActual);
             } else if (nodoActual instanceof NodoIdentificador) {
                 nodoIdentificador((NodoIdentificador) nodoActual);
             } else if (nodoActual instanceof NodoOperacionMat) {
@@ -126,24 +128,55 @@ public class Compilador {
         }
     }
 
+    private void nodoAsignacionBool(NodoAsignacionBool nodo) {
+        int direccion;
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> asignacionBool");
+        }
+
+        if (tablaSimbolos.getTipo(nodo.getIdentificador()) == Tipo.Variable.BOOLEAN) {
+
+            interpretarNodo(nodo.getValor());
+            /*
+             * Ahora almaceno el valor resultante
+             */
+            direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
+
+            UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(), out);
+
+        } else {
+            System.err.println("No coincide tipo, identificador: " + nodo.getIdentificador());
+            System.exit(-1);
+        }
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- asignacionBool");
+        }
+    }
+
     private void nodoAsignacion(NodoAsignacion nodo) {
         int direccion;
 
         if (UtGen.debug) {
             UtGen.emitirComentario("-> asignacion");
         }
-        /*
-         * Genero el codigo para la expresion a la derecha de la asignacion
-         */
+        if (tablaSimbolos.getTipo(nodo.getIdentificador()) == Tipo.Variable.INTEGER) {
+            /*
+             * Genero el codigo para la expresion a la derecha de la asignacion
+             */
 
-        interpretarNodo(nodo.getValor());
-        /*
-         * Ahora almaceno el valor resultante
-         */
-        direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
+            interpretarNodo(nodo.getValor());
+            /*
+             * Ahora almaceno el valor resultante
+             */
+            direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
 
-        UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(), out);
-
+            UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(), out);
+        } else {
+            System.err.println("No coincide tipo, identificador: " + nodo.getIdentificador());
+            System.exit(-1);
+        }
         if (UtGen.debug) {
             UtGen.emitirComentario("<- asignacion");
         }
@@ -153,7 +186,7 @@ public class Compilador {
         if (UtGen.debug) {
             UtGen.emitirComentario("-> nodoOperacionMatUnaria");
         }
-        
+
         interpretarNodo(nodo.getValor());
         /*
          * Almaceno en la pseudo pila de valor temporales el valor de la
@@ -170,7 +203,7 @@ public class Compilador {
         UtGen.emitirRM("LD", UtGen.AC1, ++desplazamientoTmp, UtGen.MP, "op: pop o cargo de la pila el valor izquierdo en AC1", out);
 
         UtGen.emitirRO("MUL", UtGen.AC, UtGen.AC1, UtGen.AC, "op: *", out);
-        
+
         if (UtGen.debug) {
             UtGen.emitirComentario("<- nodoOperacionMatUnaria");
         }

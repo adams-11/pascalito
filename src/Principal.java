@@ -27,16 +27,14 @@ public class Principal {
         NodoBase root = parser.action_obj.getRoot();
         NodoBase funciones = parser.action_obj.getFunciones();
         NodoBase declaraciones = parser.action_obj.getVars();
-        
-        TablaSimbolos tablaSimbolos=new TablaSimbolos();        
-        tablaSimbolos.cargarTabla((NodoDeclaracion)declaraciones);
-        
-        tablaSimbolos.imprimirClaves();
-        
-        PrintWriter out=new PrintWriter("salida.tm");
-        
-        new Compilador(root, funciones,tablaSimbolos,out).start();
-        
-        out.close();
+
+        TablaSimbolos tablaSimbolos = new TablaSimbolos();
+        boolean todoBien = tablaSimbolos.cargarTabla((NodoDeclaracion) declaraciones);
+        if (todoBien) {
+            tablaSimbolos.imprimirClaves();
+            PrintWriter out = new PrintWriter("salida.tm");
+            new Compilador(root, funciones, tablaSimbolos, out).start();
+            out.close();
+        }
     }
 }

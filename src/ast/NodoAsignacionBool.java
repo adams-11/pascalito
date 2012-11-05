@@ -4,7 +4,7 @@ package ast;
  * El valor puede ser, un numero, una expresion numerica o otra variable.
  * 
  */
-public class NodoAsignacion extends NodoBase {
+public class NodoAsignacionBool extends NodoBase {
 
     /**
      * Nombre de la variable.
@@ -13,12 +13,12 @@ public class NodoAsignacion extends NodoBase {
     /**
      * El valor asignado a la varible.
      */
-    private NodoBase valor;
+    private NodoNumero valor;
 
     /**
      * Crea una instancia de NodoAsignacion sin valores.
      */
-    public NodoAsignacion() {
+    public NodoAsignacionBool() {
     }
 
     /**
@@ -28,8 +28,7 @@ public class NodoAsignacion extends NodoBase {
      * @param variable el nombre de la variable
      * @param valor el valor que se le asignara
      */
-    public NodoAsignacion(String variable, NodoBase valor) {
-        super();
+    public NodoAsignacionBool(String variable, NodoNumero valor) {
         this.variable = variable;
         this.valor = valor;
     }
@@ -48,7 +47,7 @@ public class NodoAsignacion extends NodoBase {
      * 
      * @return el valor de la variable 
      */
-    public NodoBase getValor() {
+    public NodoNumero getValor() {
         return valor;
     }
 }
