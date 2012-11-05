@@ -268,6 +268,37 @@ expresion ::=
 			System.out.println("\t Regla: expresion ::= SUMA ");
 		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.SUMA);
 	:}
+	| expresion:e1 REST expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= REST ");
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.REST);
+	:}
+	| expresion:e1 MULT expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= MULT ");
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.MULT);
+	:}
+	| expresion:e1 DIVI expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= DIVI ");
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.DIVI);
+	:}
+	| expresion:e1 MOD expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= MOD ");
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.MOD);
+	:}
+	| REST expresion:ex {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= RESTA expresion ");
+		RESULT = new NodoOperacionMatUnaria(ex);
+	:}
+	%prec SIGNO
+	| LPARENT expresion:e RPARENT {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= PARENTESIS ");
+		RESULT = e;
+	:}
 ;
 
 separar ::=

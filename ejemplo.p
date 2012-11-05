@@ -1,8 +1,7 @@
 PROGRAM prueba;
 	VAR
-		X1,Y2:BOOLEAN;
+		X1,X2,Y1,Y2:INTEGER;
 	BEGIN
-		X1:=155+1+3;
+		X1:=1+2+3*(-4)+1;
 		WRITE (X1);
-		WRITE (123);
 END.
