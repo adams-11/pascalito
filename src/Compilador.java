@@ -1,6 +1,8 @@
 
 import util.TablaSimbolos;
 import ast.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import util.UtGen;
 
 /**
@@ -9,15 +11,33 @@ import util.UtGen;
  */
 public class Compilador {
 
+    private PrintWriter out;
     private java.util.Scanner in = new java.util.Scanner(System.in);
     private NodoBase root;
     //private NodoProcedimientoDeclaracion rootProcedimientos;
     private TablaSimbolos tablaSimbolos = null;
+    
+    /*
+     * desplazamientoTmp es una variable inicializada en 0 y empleada como el
+     * desplazamiento de la siguiente localidad temporal disponible desde la
+     * parte superior o tope de la memoria (la que apunta el registro MP).
+     *
+     * - Se decrementa (desplazamientoTmp--) despues de cada almacenamiento y
+     *
+     * - Se incrementa (desplazamientoTmp++) despues de cada eliminacion/carga
+     * en otra variable de un valor de la pila.
+     *
+     * Pudiendose ver como el apuntador hacia el tope de la pila temporal y las
+     * llamadas a la funcion emitirRM corresponden a una inserccion y extraccion
+     * de esta pila
+     */
+    private static int desplazamientoTmp = 0;
 
-    public Compilador(NodoBase root, NodoBase rootProcedimientos, TablaSimbolos tablaSimbolos) {
+    public Compilador(NodoBase root, NodoBase rootProcedimientos, TablaSimbolos tablaSimbolos, PrintWriter out) {
         this.root = root;
         //this.rootProcedimientos = (NodoProcedimientoDeclaracion) rootProcedimientos;
-        this.tablaSimbolos=tablaSimbolos;
+        this.tablaSimbolos = tablaSimbolos;
+        this.out=out;
     }
 
     public void start() {
@@ -38,7 +58,7 @@ public class Compilador {
          * Genero el codigo de finalizacion de ejecucion del codigo
          */
         UtGen.emitirComentario("Fin de la ejecucion.");
-        UtGen.emitirRO("HALT", 0, 0, 0, "");
+        UtGen.emitirRO("HALT", 0, 0, 0, "",out);
         System.out.println();
         System.out.println();
         System.out.println("------ FIN DEL CODIGO OBJETO DEL LENGUAJE TINY GENERADO PARA LA TM ------");
@@ -55,8 +75,8 @@ public class Compilador {
                 nodoAsignacion((NodoAsignacion) nodoActual);
             } else if (nodoActual instanceof NodoIdentificador) {
                 nodoIdentificador((NodoIdentificador) nodoActual);
-            }else if(nodoActual instanceof NodoOperacionMat){
-                //nodoOperacionMat((NodoOperacionMat) nodoActual);
+            } else if (nodoActual instanceof NodoOperacionMat) {
+                nodoOperacionMat((NodoOperacionMat) nodoActual);
             }
             nodoActual = nodoActual.getHermanoDerecha();
         }
@@ -79,7 +99,7 @@ public class Compilador {
             /*
              * Ahora genero la salida
              */
-            UtGen.emitirRO("OUT", UtGen.AC, 0, 0, "escribir: genero la salida de la expresion");
+            UtGen.emitirRO("OUT", UtGen.AC, 0, 0, "escribir: genero la salida de la expresion",out);
 
             //si es una sentencia print con varios valores separados por ","
             valor = valor.getHermanoDerecha();
@@ -99,7 +119,7 @@ public class Compilador {
             UtGen.emitirComentario("-> identificador");
         }
         direccion = tablaSimbolos.getDireccion(nodo.getNombre());
-        UtGen.emitirRM("LD", UtGen.AC, direccion, UtGen.GP, "cargar valor de identificador: "+nodo.getNombre());
+        UtGen.emitirRM("LD", UtGen.AC, direccion, UtGen.GP, "cargar valor de identificador: " + nodo.getNombre(),out);
         if (UtGen.debug) {
             UtGen.emitirComentario("-> identificador");
         }
@@ -121,10 +141,46 @@ public class Compilador {
          */
         direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
 
-        UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id "+nodo.getIdentificador());
+        UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(),out);
 
         if (UtGen.debug) {
             UtGen.emitirComentario("<- asignacion");
+        }
+    }
+
+    private void nodoOperacionMat(NodoOperacionMat nodo) {
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> Operacion: " + nodo.getTipo());
+        }
+
+        /*
+         * Genero la expresion izquierda de la operacion
+         */
+        interpretarNodo(nodo.getOpIzquierdo());
+        /*
+         * Almaceno en la pseudo pila de valor temporales el valor de la
+         * operacion izquierda
+         */
+        UtGen.emitirRM("ST", UtGen.AC, desplazamientoTmp--, UtGen.MP, "op: push en la pila tmp el resultado expresion izquierda",out);
+        /*
+         * Genero la expresion derecha de la operacion
+         */
+        interpretarNodo(nodo.getOpDerecho());
+        /*
+         * Ahora cargo/saco de la pila el valor izquierdo
+         */
+        UtGen.emitirRM("LD", UtGen.AC1, ++desplazamientoTmp, UtGen.MP, "op: pop o cargo de la pila el valor izquierdo en AC1",out);
+
+        switch (nodo.getTipo()) {
+            case SUMA:
+                UtGen.emitirRO("ADD", UtGen.AC, UtGen.AC1, UtGen.AC, "op: +",out);
+                break;
+            default:
+                UtGen.emitirComentario("BUG: tipo de operacion desconocida");
+        }
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- Operacion: " + nodo.getTipo());
         }
     }
 
@@ -132,7 +188,7 @@ public class Compilador {
         if (UtGen.debug) {
             UtGen.emitirComentario("-> constante");
         }
-        UtGen.emitirRM("LDC", UtGen.AC, numero.getValor(), 0, "cargar constante: " + numero.getValor());
+        UtGen.emitirRM("LDC", UtGen.AC, numero.getValor(), 0, "cargar constante: " + numero.getValor(),out);
         if (UtGen.debug) {
             UtGen.emitirComentario("<- constante");
         }
@@ -148,7 +204,7 @@ public class Compilador {
          * Todos los registros en tiny comienzan en cero
          */
         UtGen.emitirComentario("Preludio estandar:");
-        UtGen.emitirRM("LD", UtGen.MP, 0, UtGen.AC, "cargar la maxima direccion desde la localidad 0");
-        UtGen.emitirRM("ST", UtGen.AC, 0, UtGen.AC, "limpio el registro de la localidad 0");
+        UtGen.emitirRM("LD", UtGen.MP, 0, UtGen.AC, "cargar la maxima direccion desde la localidad 0",out);
+        UtGen.emitirRM("ST", UtGen.AC, 0, UtGen.AC, "limpio el registro de la localidad 0",out);
     }
 }

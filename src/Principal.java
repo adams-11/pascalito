@@ -3,6 +3,7 @@ import ast.NodoBase;
 import ast.NodoDeclaracion;
 import ast.NodoIdentificador;
 import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java_cup.runtime.DefaultSymbolFactory;
 import java_cup.runtime.SymbolFactory;
 import util.TablaSimbolos;
@@ -32,6 +33,10 @@ public class Principal {
         
         tablaSimbolos.imprimirClaves();
         
-        new Compilador(root, funciones,tablaSimbolos).start();
+        PrintWriter out=new PrintWriter("salida.tm");
+        
+        new Compilador(root, funciones,tablaSimbolos,out).start();
+        
+        out.close();
     }
 }
