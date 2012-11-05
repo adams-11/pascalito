@@ -1,4 +1,5 @@
 
+import util.TablaSimbolos;
 import ast.*;
 import util.UtGen;
 
@@ -11,10 +12,12 @@ public class Compilador {
     private java.util.Scanner in = new java.util.Scanner(System.in);
     private NodoBase root;
     //private NodoProcedimientoDeclaracion rootProcedimientos;
+    private TablaSimbolos tablaSimbolos = null;
 
-    public Compilador(NodoBase root, NodoBase rootProcedimientos) {
+    public Compilador(NodoBase root, NodoBase rootProcedimientos, TablaSimbolos tablaSimbolos) {
         this.root = root;
         //this.rootProcedimientos = (NodoProcedimientoDeclaracion) rootProcedimientos;
+        this.tablaSimbolos=tablaSimbolos;
     }
 
     public void start() {
@@ -48,6 +51,12 @@ public class Compilador {
                 nodoEscribir((NodoEscribir) nodoActual);
             } else if (nodoActual instanceof NodoNumero) {
                 nodoNumero((NodoNumero) nodoActual);
+            } else if (nodoActual instanceof NodoAsignacion) {
+                nodoAsignacion((NodoAsignacion) nodoActual);
+            } else if (nodoActual instanceof NodoIdentificador) {
+                nodoIdentificador((NodoIdentificador) nodoActual);
+            }else if(nodoActual instanceof NodoOperacionMat){
+                //nodoOperacionMat((NodoOperacionMat) nodoActual);
             }
             nodoActual = nodoActual.getHermanoDerecha();
         }
@@ -59,22 +68,10 @@ public class Compilador {
             UtGen.emitirComentario("-> escribir");
         }
 
-
-
         NodoBase valor = nodoEscribir.getValor();
 
         //Para todos los valores del print
         do {
-            /*
-             * if (valor instanceof NodoCadena) { NodoCadena nodoCadena =
-             * (NodoCadena) valor; String cadena = nodoCadena.getCadena();
-             * //elimina las comillas cadena = cadena.substring(1,
-             * cadena.length() - 1); System.out.print(cadena); } if(valor
-             * instanceof NodoNumero){ NodoNumero nodoNumero = (NodoNumero)
-             * valor; Integer numero = nodoNumero.getValor();
-             * System.out.print(numero); }
-             */
-
             /*
              * Genero el codigo de la expresion que va a ser escrita en pantalla
              */
@@ -90,17 +87,48 @@ public class Compilador {
              * if (valor != null) { System.out.print(" "); }
              */
         } while (valor != null);
-        /*
-         * if (nodoEscribir.isSaltoDeLinea()) { //Termina con nueva linea
-         * System.out.println(""); } else { //Si termina con ;
-         * System.out.print(" "); }
-         */
+
         if (UtGen.debug) {
             UtGen.emitirComentario("<- escribir");
         }
     }
 
-    private static void nodoNumero(NodoNumero numero) {
+    private void nodoIdentificador(NodoIdentificador nodo) {
+        int direccion;
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> identificador");
+        }
+        direccion = tablaSimbolos.getDireccion(nodo.getNombre());
+        UtGen.emitirRM("LD", UtGen.AC, direccion, UtGen.GP, "cargar valor de identificador: "+nodo.getNombre());
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> identificador");
+        }
+    }
+
+    private void nodoAsignacion(NodoAsignacion nodo) {
+        int direccion;
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> asignacion");
+        }
+        /*
+         * Genero el codigo para la expresion a la derecha de la asignacion
+         */
+
+        interpretarNodo(nodo.getValor());
+        /*
+         * Ahora almaceno el valor resultante
+         */
+        direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
+
+        UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id "+nodo.getIdentificador());
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- asignacion");
+        }
+    }
+
+    private void nodoNumero(NodoNumero numero) {
         if (UtGen.debug) {
             UtGen.emitirComentario("-> constante");
         }
@@ -110,7 +138,7 @@ public class Compilador {
         }
     }
 
-    private static void generarPreludioEstandar() {
+    private void generarPreludioEstandar() {
         UtGen.emitirComentario("Compilacion TINY para el codigo objeto TM");
         UtGen.emitirComentario("Archivo: " + "NOMBRE_ARREGLAR");
         /*
