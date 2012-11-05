@@ -47,6 +47,14 @@ terminal LCORCHE;
 terminal RCORCHE;
 terminal TRUE;
 terminal FALSE;
+terminal MENORIGUAL;
+terminal MENOR;
+terminal MAYORIGUAL;
+terminal MAYOR;
+terminal DIFERENTE;
+terminal IF;
+terminal THEN;
+terminal ELSE;
 terminal AND;
 terminal OR;
 terminal NOT;
@@ -60,7 +68,6 @@ terminal LINEANUEVA;
 non terminal NodoBase programaTotal;
 non terminal NodoBase declararVariables;
 non terminal NodoBase seq_declararVariables;
-non terminal NodoBase ident;
 non terminal NodoBase identAnidado;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
@@ -70,6 +77,9 @@ non terminal NodoBase expresion;
 non terminal NodoBase write;
 non terminal NodoBase writeAnidado;
 non terminal NodoBase writeValor;
+non terminal NodoBase condicion;
+non terminal NodoBase expresionBool;
+non terminal NodoBase if;
 non terminal NodoBase separar;
 non terminal NodoBase lineas;
 
@@ -319,39 +329,6 @@ expresion ::=
 		if(debug)
 			System.out.println("\t Regla: expresion ::= PARENTESIS ");
 		RESULT = e;
-	:}
-;
-
-condicion ::=
-	expresion:e1 IGUAL expresion:e2 {:
-		if(debug)
-			System.out.println("\t Regla: condicion ::= IGUAL");
-		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.IGUAL);
-	:}
-	| expresion:e1 MENOR expresion:e2 {:
-		if(debug)
-			System.out.println("\t Regla: condicion ::= MENOR");
-		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENOR);
-	:}
-	| expresion:e1 MENORIGUAL expresion:e2 {:
-		if(debug)
-			System.out.println("\t Regla: condicion ::= MENORIGUAL");
-		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENORIGUAL);
-	:}
-	| expresion:e1 MAYOR expresion:e2 {:
-		if(debug)
-			System.out.println("\t Regla: condicion ::= MAYOR");
-		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYOR);
-	:}
-	| expresion:e1 MAYORIGUAL expresion:e2 {:
-		if(debug)
-			System.out.println("\t Regla: condicion ::= MAYORIGUAL");
-		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYORIGUAL);
-	:}
-	| expresion:e1 DIFERENTE expresion:e2 {:
-		if(debug)
-			System.out.println("\t Regla: condicion ::= DIFERENTE");
-		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);
 	:}
 ;
 

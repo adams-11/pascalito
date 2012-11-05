@@ -1,0 +1,73 @@
+if ::=
+	IF expresionBool:ex separar THEN separar seq_sent:then separar {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF SOLO");
+		RESULT = new NodoIf(ex, then);
+	:}
+	| IF expresionBool:ex separar THEN separar seq_sent:then separar ELSE separar seq_sent:else1 separar {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF CON ELSE");
+		RESULT = new NodoIf(ex, then, else1);
+	:}
+;
+
+expresionBool ::=
+	condicion:c {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= condicion");
+		RESULT = c;
+	:}
+	| expresionBool:c1 AND expresionBool:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool AND expresionBool ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.AND);
+	:}
+	| expresionBool:c1 OR expresionBool:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool OR expresionBool ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.OR);
+	:}
+	| NOT expresionBool:ex {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= NOT expresionBool");
+		RESULT = new NodoOperacionBoolUnaria(ex);
+	:}
+	| LPARENT expresionBool:ex RPARENT {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= PARENTESIS ");
+		RESULT = ex;
+	:}
+;
+
+condicion ::=
+	expresion:e1 IGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= IGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.IGUAL);
+	:}
+	| expresion:e1 MENOR expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MENOR");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENOR);
+	:}
+	| expresion:e1 MENORIGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MENORIGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENORIGUAL);
+	:}
+	| expresion:e1 MAYOR expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MAYOR");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYOR);
+	:}
+	| expresion:e1 MAYORIGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MAYORIGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYORIGUAL);
+	:}
+	| expresion:e1 DIFERENTE expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= DIFERENTE");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);
+	:}
+;

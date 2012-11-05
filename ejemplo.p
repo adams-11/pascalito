@@ -2,6 +2,6 @@ PROGRAM prueba;
 	VAR
 		X1,X2,Y1,Y2:INTEGER;
 	BEGIN
-		X1:=TRUE;
+		X1:=1;
 		WRITE (X1);
 END.

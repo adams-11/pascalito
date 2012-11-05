@@ -141,6 +141,46 @@ comentario		= "{"[^}]*"}"
 		System.out.println("token DOSP");
 	return sf.newSymbol("DOSP",Symbols.DOSP);
 }
+"<=" {
+	if(debug)
+		System.out.println("token MENORIGUAL");
+	return sf.newSymbol("MENORIGUAL",Symbols.MENORIGUAL);
+}
+"<" {
+	if(debug)
+		System.out.println("token MENOR");
+	return sf.newSymbol("MENOR",Symbols.MENOR);
+}
+">=" {
+	if(debug)
+		System.out.println("token MAYORIGUAL");
+	return sf.newSymbol("MAYORIGUAL",Symbols.MAYORIGUAL);
+}
+">" {
+	if(debug)
+		System.out.println("token MAYOR");
+	return sf.newSymbol("MAYOR",Symbols.MAYOR);
+}
+"<>" {
+	if(debug)
+		System.out.println("token DIFERENTE");
+	return sf.newSymbol("DIFERENTE",Symbols.DIFERENTE);
+}
+"IF" {
+	if(debug)
+		System.out.println("token IF");
+	return sf.newSymbol("IF",Symbols.IF);
+}
+"THEN" {
+	if(debug)
+		System.out.println("token THEN");
+	return sf.newSymbol("THEN",Symbols.THEN);
+}
+"ELSE" {
+	if(debug)
+		System.out.println("token ELSE");
+	return sf.newSymbol("ELSE",Symbols.ELSE);
+}
 "AND" {
 	if(debug)
 		System.out.println("token AND");
