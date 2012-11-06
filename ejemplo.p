@@ -1,7 +1,7 @@
 PROGRAM prueba;
 	BEGIN
-		IF (FALSE OR TRUE) THEN 
+		IF (NOT FALSE) THEN 
 			BEGIN
-				WRITE (33);
+				WRITE (43);
 			END;
 END.

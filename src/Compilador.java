@@ -87,6 +87,8 @@ public class Compilador {
                 nodoOperacionBool((NodoOperacionBool) nodoActual);
             } else if (nodoActual instanceof NodoOperacionBoolLogica) {
                 nodoOperacionBoolLogica((NodoOperacionBoolLogica) nodoActual);
+            }else if(nodoActual instanceof NodoOperacionBoolUnaria){
+                nodoOperacionBoolUnaria((NodoOperacionBoolUnaria) nodoActual);
             }
             nodoActual = nodoActual.getHermanoDerecha();
         }
@@ -303,6 +305,29 @@ public class Compilador {
 
         if (UtGen.debug) {
             UtGen.emitirComentario("<- if");
+        }
+    }
+    
+    private void nodoOperacionBoolUnaria(NodoOperacionBoolUnaria nodo) {
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> NodoOperacionBoolUnaria");
+        }
+
+        /*
+         * Genero la expresion izquierda de la operacion
+         */
+        interpretarNodo(nodo.getValor());
+        
+                UtGen.emitirRO("SUB", UtGen.AC, UtGen.AC1, UtGen.AC, "op: and", out);
+                UtGen.emitirRM("JEQ", UtGen.AC, 2, UtGen.PC, "voy dos instrucciones mas alla if verdadero (AC==0)", out);
+                UtGen.emitirRM("LDC", UtGen.AC, 0, UtGen.AC, "caso de falso (AC=0)", out);
+                UtGen.emitirRM("LDA", UtGen.PC, 1, UtGen.PC, "Salto incodicional a direccion: PC+1 (es falso evito colocarlo verdadero)", out);
+                UtGen.emitirRM("LDC", UtGen.AC, 1, UtGen.AC, "caso de verdadero (AC=1)", out);
+
+        
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- NodoOperacionBoolUnaria");
         }
     }
 
