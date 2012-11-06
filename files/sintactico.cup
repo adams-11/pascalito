@@ -72,7 +72,6 @@ non terminal NodoBase identAnidado;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase asignacion;
-non terminal NodoBase asignacionBool;
 non terminal NodoBase expresion;
 non terminal NodoBase write;
 non terminal NodoBase writeAnidado;
@@ -207,11 +206,6 @@ sent ::=
 			System.out.println("\t Regla: sent ::= asignacion");
 		RESULT=sentencia;                              
 	:}
-	| asignacionBool:sentencia {:
-		if(debug)
-			System.out.println("\t Regla: sent ::= asignacion");
-		RESULT=sentencia;                              
-	:}
 	| ifx:sentencia {:
 		if(debug)
 			System.out.println("\t Regla: sent ::= if");
@@ -220,23 +214,10 @@ sent ::=
 ;
 
 asignacion ::=
-	IDENTIFICADOR:variable separar DOSP IGUAL separar expresion:valor separar PTCO {:
+	IDENTIFICADOR:variable separar DOSP IGUAL separar valorBool:valor separar PTCO {:
 		if(debug)
 			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
 		RESULT = new NodoAsignacion(variable, valor);
-	:}
-;
-
-asignacionBool ::=
-	IDENTIFICADOR:variable separar DOSP IGUAL separar TRUE separar PTCO {:
-		if(debug)
-			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL TRUE");
-		RESULT = new NodoAsignacionBool(variable, new NodoNumero(1));
-	:}
-	| IDENTIFICADOR:variable separar DOSP IGUAL separar FALSE separar PTCO {:
-		if(debug)
-			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL FALSE");
-		RESULT = new NodoAsignacionBool(variable, new NodoNumero(0));
 	:}
 ;
 
@@ -355,7 +336,7 @@ valorBool ::=
 	expresion:e1 {:
 		if(debug)
 			System.out.println("\t Regla: valorBool ::= expresion");
-		RESULT = new NodoOperacionBoolUnaria(e1,false);
+		RESULT = e1;
 	:}
 	| expresionBool:c {:
 		if(debug)

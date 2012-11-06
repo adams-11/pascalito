@@ -71,8 +71,6 @@ public class Compilador {
                 nodoNumero((NodoNumero) nodoActual);
             } else if (nodoActual instanceof NodoAsignacion) {
                 nodoAsignacion((NodoAsignacion) nodoActual);
-            } else if (nodoActual instanceof NodoAsignacionBool) {
-                nodoAsignacionBool((NodoAsignacionBool) nodoActual);
             } else if (nodoActual instanceof NodoIdentificador) {
                 nodoIdentificador((NodoIdentificador) nodoActual);
             } else if (nodoActual instanceof NodoOperacionMat) {
@@ -87,7 +85,7 @@ public class Compilador {
                 nodoOperacionBool((NodoOperacionBool) nodoActual);
             } else if (nodoActual instanceof NodoOperacionBoolLogica) {
                 nodoOperacionBoolLogica((NodoOperacionBoolLogica) nodoActual);
-            }else if(nodoActual instanceof NodoOperacionBoolUnaria){
+            } else if (nodoActual instanceof NodoOperacionBoolUnaria) {
                 nodoOperacionBoolUnaria((NodoOperacionBoolUnaria) nodoActual);
             }
             nodoActual = nodoActual.getHermanoDerecha();
@@ -137,55 +135,50 @@ public class Compilador {
         }
     }
 
-    private void nodoAsignacionBool(NodoAsignacionBool nodo) {
-        int direccion;
-
-        if (UtGen.debug) {
-            UtGen.emitirComentario("-> asignacionBool");
-        }
-
-        if (tablaSimbolos.getTipo(nodo.getIdentificador()) == Tipo.Variable.BOOLEAN) {
-
-            interpretarNodo(nodo.getValor());
-            /*
-             * Ahora almaceno el valor resultante
-             */
-            direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
-
-            UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(), out);
-
-        } else {
-            System.err.println("No coincide tipo, identificador: " + nodo.getIdentificador());
-            System.exit(-1);
-        }
-
-        if (UtGen.debug) {
-            UtGen.emitirComentario("<- asignacionBool");
-        }
-    }
-
     private void nodoAsignacion(NodoAsignacion nodo) {
         int direccion;
 
         if (UtGen.debug) {
             UtGen.emitirComentario("-> asignacion");
         }
-        if (tablaSimbolos.getTipo(nodo.getIdentificador()) == Tipo.Variable.INTEGER) {
-            /*
-             * Genero el codigo para la expresion a la derecha de la asignacion
-             */
 
-            interpretarNodo(nodo.getValor());
-            /*
-             * Ahora almaceno el valor resultante
-             */
-            direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
+        Tipo.Variable tipo = tablaSimbolos.getTipo(nodo.getIdentificador());
 
-            UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(), out);
-        } else {
+        if (tipo.equals(Tipo.Variable.INTEGER)
+                && (nodo.getValor() instanceof NodoBoolean
+                || nodo.getValor() instanceof NodoOperacionBool
+                || nodo.getValor() instanceof NodoOperacionBoolLogica
+                || nodo.getValor() instanceof NodoOperacionBoolUnaria
+                || (nodo.getValor() instanceof NodoIdentificador
+                && tablaSimbolos.getTipo(((NodoIdentificador) nodo.getValor()).getNombre()).equals(Tipo.Variable.BOOLEAN)))) {
+
             System.err.println("No coincide tipo, identificador: " + nodo.getIdentificador());
             System.exit(-1);
         }
+
+        if (tipo.equals(Tipo.Variable.BOOLEAN)
+                && (nodo.getValor() instanceof NodoNumero
+                || nodo.getValor() instanceof NodoOperacionMat
+                || nodo.getValor() instanceof NodoOperacionMatUnaria
+                || (nodo.getValor() instanceof NodoIdentificador
+                && tablaSimbolos.getTipo(((NodoIdentificador) nodo.getValor()).getNombre()).equals(Tipo.Variable.INTEGER)))) {
+
+            System.err.println("No coincide tipo, identificador: " + nodo.getIdentificador());
+            System.exit(-1);
+        }
+
+        /*
+         * Genero el codigo para la expresion a la derecha de la asignacion
+         */
+
+        interpretarNodo(nodo.getValor());
+        /*
+         * Ahora almaceno el valor resultante
+         */
+        direccion = tablaSimbolos.getDireccion(nodo.getIdentificador());
+
+        UtGen.emitirRM("ST", UtGen.AC, direccion, UtGen.GP, "asignacion: almaceno el valor para el id " + nodo.getIdentificador(), out);
+
         if (UtGen.debug) {
             UtGen.emitirComentario("<- asignacion");
         }
@@ -268,6 +261,17 @@ public class Compilador {
         if (UtGen.debug) {
             UtGen.emitirComentario("-> if");
         }
+        
+        if (nodo.getCondicion() instanceof NodoNumero
+                || nodo.getCondicion() instanceof NodoOperacionMat
+                || nodo.getCondicion() instanceof NodoOperacionMatUnaria
+                || (nodo.getCondicion() instanceof NodoIdentificador
+                && tablaSimbolos.getTipo(((NodoIdentificador) nodo.getCondicion()).getNombre()).equals(Tipo.Variable.INTEGER))) {
+
+            System.err.println("No coincide tipo, para el if: " + nodo.getCondicion());
+            System.exit(-1);
+        }
+        
 
         /*
          * Genero el codigo para la parte de prueba del IF
@@ -307,7 +311,7 @@ public class Compilador {
             UtGen.emitirComentario("<- if");
         }
     }
-    
+
     private void nodoOperacionBoolUnaria(NodoOperacionBoolUnaria nodo) {
         if (UtGen.debug) {
             UtGen.emitirComentario("-> NodoOperacionBoolUnaria");
@@ -317,14 +321,14 @@ public class Compilador {
          * Genero la expresion izquierda de la operacion
          */
         interpretarNodo(nodo.getValor());
-        
-                UtGen.emitirRO("SUB", UtGen.AC, UtGen.AC1, UtGen.AC, "op: and", out);
-                UtGen.emitirRM("JEQ", UtGen.AC, 2, UtGen.PC, "voy dos instrucciones mas alla if verdadero (AC==0)", out);
-                UtGen.emitirRM("LDC", UtGen.AC, 0, UtGen.AC, "caso de falso (AC=0)", out);
-                UtGen.emitirRM("LDA", UtGen.PC, 1, UtGen.PC, "Salto incodicional a direccion: PC+1 (es falso evito colocarlo verdadero)", out);
-                UtGen.emitirRM("LDC", UtGen.AC, 1, UtGen.AC, "caso de verdadero (AC=1)", out);
 
-        
+        UtGen.emitirRO("SUB", UtGen.AC, UtGen.AC1, UtGen.AC, "op: and", out);
+        UtGen.emitirRM("JEQ", UtGen.AC, 2, UtGen.PC, "voy dos instrucciones mas alla if verdadero (AC==0)", out);
+        UtGen.emitirRM("LDC", UtGen.AC, 0, UtGen.AC, "caso de falso (AC=0)", out);
+        UtGen.emitirRM("LDA", UtGen.PC, 1, UtGen.PC, "Salto incodicional a direccion: PC+1 (es falso evito colocarlo verdadero)", out);
+        UtGen.emitirRM("LDC", UtGen.AC, 1, UtGen.AC, "caso de verdadero (AC=1)", out);
+
+
 
         if (UtGen.debug) {
             UtGen.emitirComentario("<- NodoOperacionBoolUnaria");

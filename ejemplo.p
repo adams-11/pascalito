@@ -1,7 +1,10 @@
 PROGRAM prueba;
+	VAR
+		X:BOOLEAN;
 	BEGIN
-		IF (NOT FALSE) THEN 
+		X:=(NOT FALSE AND TRUE OR FALSE OR (1*5=5));
+		IF X THEN 
 			BEGIN
-				WRITE (43);
+				WRITE (53);
 			END;
 END.
