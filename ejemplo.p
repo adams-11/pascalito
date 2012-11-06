@@ -4,7 +4,14 @@ PROGRAM prueba;
 	BEGIN
 		X:=(NOT FALSE AND TRUE OR FALSE OR (1*5=5));
 		IF X THEN 
+		BEGIN
+			IF TRUE THEN
 			BEGIN
-				WRITE (53);
-			END;
+				WRITE (77);
+			END
+			else
+			begin
+				WRITE (5);
+			end;
+		END;
 END.
