@@ -46,6 +46,11 @@ comentario		= "{"[^}]*"}"
 		System.out.println("token FINPROGRAM");
 	return sf.newSymbol("FINPROGRAM",Symbols.FINPROGRAM);
 }
+"END" {
+	if(debug)
+		System.out.println("token END");
+	return sf.newSymbol("END",Symbols.END);
+}
 "VAR" {
 	if(debug)
 		System.out.println("token VAR");

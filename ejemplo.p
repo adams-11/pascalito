@@ -1,6 +1,7 @@
 PROGRAM prueba;
 	VAR
 		X1,X2,Y1,Y2:INTEGER;
+		W1:BOOLEAN;
 	BEGIN
 		X1:=1;
 		WRITE (X1);

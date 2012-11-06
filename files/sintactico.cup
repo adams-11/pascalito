@@ -25,6 +25,7 @@ action code {:
 
 terminal PROGRAM;
 terminal BEGIN;
+terminal END;
 terminal FINPROGRAM;
 terminal VAR;
 terminal INTEGER;
@@ -61,7 +62,6 @@ terminal NOT;
 terminal COMA;
 terminal PTCO;
 terminal DOSP;
-terminal END;
 terminal LINEANUEVA;
 
 /* Simbolos No Terminales */
@@ -79,7 +79,7 @@ non terminal NodoBase writeAnidado;
 non terminal NodoBase writeValor;
 non terminal NodoBase condicion;
 non terminal NodoBase expresionBool;
-non terminal NodoBase if;
+non terminal NodoBase ifx;
 non terminal NodoBase separar;
 non terminal NodoBase lineas;
 
@@ -211,6 +211,11 @@ sent ::=
 			System.out.println("\t Regla: sent ::= asignacion");
 		RESULT=sentencia;                              
 	:}
+	| ifx:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= if");
+		RESULT=sentencia;                              
+	:}
 ;
 
 asignacion ::=
@@ -329,6 +334,80 @@ expresion ::=
 		if(debug)
 			System.out.println("\t Regla: expresion ::= PARENTESIS ");
 		RESULT = e;
+	:}
+;
+
+ifx ::=
+	IF expresionBool:ex separar THEN separar BEGIN separar seq_sent:then separar END PTCO {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF SOLO");
+		RESULT = new NodoIf(ex, then);
+	:}
+	| IF expresionBool:ex separar THEN separar BEGIN separar seq_sent:then separar END separar ELSE separar BEGIN separar seq_sent:else1 separar END PTCO {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF CON ELSE");
+		RESULT = new NodoIf(ex, then, else1);
+	:}
+;
+
+expresionBool ::=
+	condicion:c {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= condicion");
+		RESULT = c;
+	:}
+	| expresionBool:c1 AND expresionBool:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool AND expresionBool ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.AND);
+	:}
+	| expresionBool:c1 OR expresionBool:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool OR expresionBool ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.OR);
+	:}
+	| NOT expresionBool:ex {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= NOT expresionBool");
+		RESULT = new NodoOperacionBoolUnaria(ex);
+	:}
+	| LPARENT expresionBool:ex RPARENT {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= PARENTESIS ");
+		RESULT = ex;
+	:}
+;
+
+condicion ::=
+	expresion:e1 IGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= IGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.IGUAL);
+	:}
+	| expresion:e1 MENOR expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MENOR");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENOR);
+	:}
+	| expresion:e1 MENORIGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MENORIGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENORIGUAL);
+	:}
+	| expresion:e1 MAYOR expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MAYOR");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYOR);
+	:}
+	| expresion:e1 MAYORIGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MAYORIGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYORIGUAL);
+	:}
+	| expresion:e1 DIFERENTE expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= DIFERENTE");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);
 	:}
 ;
 
