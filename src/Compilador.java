@@ -80,6 +80,12 @@ public class Compilador {
                 nodoOperacionMat((NodoOperacionMat) nodoActual);
             } else if (nodoActual instanceof NodoOperacionMatUnaria) {
                 nodoOperacionMatUnaria((NodoOperacionMatUnaria) nodoActual);
+            } else if (nodoActual instanceof NodoBoolean) {
+                nodoBoolean((NodoBoolean) nodoActual);
+            } else if (nodoActual instanceof NodoIf) {
+                nodoIf((NodoIf) nodoActual);
+            } else if (nodoActual instanceof NodoOperacionBool) {
+                nodoOperacionBool((NodoOperacionBool) nodoActual);
             }
             nodoActual = nodoActual.getHermanoDerecha();
         }
@@ -251,6 +257,104 @@ public class Compilador {
 
         if (UtGen.debug) {
             UtGen.emitirComentario("<- Operacion: " + nodo.getTipo());
+        }
+    }
+
+    private void nodoIf(NodoIf nodo) {
+        int localidadSaltoElse, localidadSaltoEnd, localidadActual;
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> if");
+        }
+
+        /*
+         * Genero el codigo para la parte de prueba del IF
+         */
+        interpretarNodo(nodo.getCondicion());
+
+        localidadSaltoElse = UtGen.emitirSalto(1);
+        UtGen.emitirComentario("If: el salto hacia el else debe estar aqui");
+        /*
+         * Genero la parte THEN
+         */
+        interpretarNodo(nodo.getParteThen());
+
+        localidadSaltoEnd = UtGen.emitirSalto(1);
+
+        UtGen.emitirComentario("If: el salto hacia el final debe estar aqui");
+
+        localidadActual = UtGen.emitirSalto(0);
+
+        UtGen.cargarRespaldo(localidadSaltoElse);
+
+        UtGen.emitirRM_Abs("JEQ", UtGen.AC, localidadActual, "if: jmp hacia else", out);
+
+        UtGen.restaurarRespaldo();
+        /*
+         * Genero la parte ELSE
+         */
+        if (nodo.getParteElse() != null) {
+            interpretarNodo(nodo.getParteElse());
+            localidadActual = UtGen.emitirSalto(0);
+            UtGen.cargarRespaldo(localidadSaltoEnd);
+            UtGen.emitirRM_Abs("LDA", UtGen.PC, localidadActual, "if: jmp hacia el final", out);
+            UtGen.restaurarRespaldo();
+        }
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- if");
+        }
+    }
+
+    private void nodoOperacionBool(NodoOperacionBool nodo) {
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> nodoOperacionBool");
+        }
+
+        /*
+         * Genero la expresion izquierda de la operacion
+         */
+        interpretarNodo(nodo.getOpIzquierdo());
+        /*
+         * Almaceno en la pseudo pila de valor temporales el valor de la
+         * operacion izquierda
+         */
+        UtGen.emitirRM("ST", UtGen.AC, desplazamientoTmp--, UtGen.MP, "op: push en la pila tmp el resultado expresion izquierda", out);
+        /*
+         * Genero la expresion derecha de la operacion
+         */
+        interpretarNodo(nodo.getOpDerecho());
+        /*
+         * Ahora cargo/saco de la pila el valor izquierdo
+         */
+        UtGen.emitirRM("LD", UtGen.AC1, ++desplazamientoTmp, UtGen.MP, "op: pop o cargo de la pila el valor izquierdo en AC1", out);
+
+        switch (nodo.getTipo()) {
+            case IGUAL:
+                UtGen.emitirRO("SUB", UtGen.AC, UtGen.AC1, UtGen.AC, "op: =",out);
+                UtGen.emitirRM("JEQ", UtGen.AC, 2, UtGen.PC, "voy dos instrucciones mas alla if verdadero (AC==0)",out);
+                UtGen.emitirRM("LDC", UtGen.AC, 0, UtGen.AC, "caso de falso (AC=0)",out);
+                UtGen.emitirRM("LDA", UtGen.PC, 1, UtGen.PC, "Salto incodicional a direccion: PC+1 (es falso evito colocarlo verdadero)",out);
+                UtGen.emitirRM("LDC", UtGen.AC, 1, UtGen.AC, "caso de verdadero (AC=1)",out);
+                break;
+            default:
+                UtGen.emitirComentario("BUG: tipo de operacion desconocida");
+        }
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- nodoOperacionBool ");
+        }
+    }
+
+    private void nodoBoolean(NodoBoolean nodo) {
+        if (UtGen.debug) {
+            UtGen.emitirComentario("-> constante boolean");
+        }
+
+        //carga 0 para false, 1 para true
+        UtGen.emitirRM("LDC", UtGen.AC, nodo.getValor() ? 1 : 0, 0, "cargar constante booleana: " + nodo.getValor(), out);
+
+        if (UtGen.debug) {
+            UtGen.emitirComentario("<- constante boolean");
         }
     }
 
