@@ -1,8 +1,7 @@
 PROGRAM prueba;
 	BEGIN
-		IF 2>1 THEN 
+		IF 10>2+5 THEN 
 			BEGIN
 				WRITE (77);
-				WRITE (771);
 			END;
 END.
