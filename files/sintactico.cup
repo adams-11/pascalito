@@ -352,17 +352,7 @@ ifx ::=
 ;
 
 valorBool ::=
-	TRUE {:
-		if(debug)
-			System.out.println("\t Regla: valorBool ::= TRUE");
-		RESULT = new NodoBoolean(true);
-	:}
-	| FALSE {:
-		if(debug)
-			System.out.println("\t Regla: valorBool ::= FALSE");
-		RESULT = new NodoBoolean(false);
-	:}
-	| expresion:e1 {:
+	expresion:e1 {:
 		if(debug)
 			System.out.println("\t Regla: valorBool ::= expresion");
 		RESULT = new NodoOperacionBoolUnaria(e1,false);
@@ -379,6 +369,16 @@ expresionBool ::=
 		if(debug)
 			System.out.println("\t Regla: expresionBool ::= condicion");
 		RESULT = c;
+	:}
+	| TRUE {:
+		if(debug)
+			System.out.println("\t Regla: valorBool ::= TRUE");
+		RESULT = new NodoBoolean(true);
+	:}
+	| FALSE {:
+		if(debug)
+			System.out.println("\t Regla: valorBool ::= FALSE");
+		RESULT = new NodoBoolean(false);
 	:}
 	| expresionBool:c1 AND expresionBool:c2 {:
 		if(debug)
